@@ -1,0 +1,20 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: ComponentVersion
+metadata:
+  name: greatdb
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+  annotations:
+    {{- include "greatdb.apiVersion" . | nindent 4 }}
+spec:
+  compatibilityRules:
+    - compDefs:
+        - {{ include "greatdb.cmpdRegexpPattern" . }}
+      releases:
+        - 8.0.32
+  releases:
+    - name: 8.0.32
+      serviceVersion: 8.0.32
+      images:
+        greatdb: {{ include "greatdb.repository" . }}:8.0.32
+        exporter: {{ include "exporter.repository" . }}:v0.14.0

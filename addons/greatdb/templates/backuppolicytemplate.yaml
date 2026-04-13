@@ -1,0 +1,22 @@
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: BackupPolicyTemplate
+metadata:
+  name: greatdb-backup-policy-template
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+spec:
+  serviceKind: GreatDB
+  compDefs:
+    - {{ include "greatdb.cmpdRegexpPattern" . }}
+  backupMethods:
+    - name: greatdb-backup
+      snapshotVolumes: false
+      actionSetName: greatdb-xtrabackup-br
+      targetVolumes:
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/mysql
+  schedules:
+    - backupMethod: greatdb-backup
+      enabled: false
+      cronExpression: "0 18 * * *"

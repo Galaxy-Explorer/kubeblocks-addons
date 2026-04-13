@@ -1,0 +1,24 @@
+releases:
+  - version: "8.0.32"
+    released_at: "2023-06-15"
+    status: "stable"
+    notes: |
+      Initial release of GreatDB addon for KubeBlocks.
+      - Supports GreatDB 8.0.32 based on MySQL
+      - Includes basic deployment and configuration
+      - Provides backup and recovery capabilities
+      - Integrated with Prometheus monitoring
+    git_branch: "release-8.0"
+    git_tag: "8.0.32"
+    commit_sha: ""
+    breaking_changes: []
+  - version: "1.0.0"
+    released_at: "2023-08-20"
+    status: "stable"
+    notes: |
+      Stable release of GreatDB addon.
+      - Enhanced security features
+      - Improved backup and recovery mechanisms
+      - Better resource management
+    git_branch: "release-1.0"
+    git_tag: "1.0.0"

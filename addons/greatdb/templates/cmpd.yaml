@@ -1,0 +1,135 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: ComponentDefinition
+metadata:
+  name: {{ include "greatdb.cmpdName" . }}
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+  annotations:
+    {{- include "greatdb.annotations" . | nindent 4 }}
+spec:
+  provider: Community
+  description: {{ .Chart.Description }}
+  serviceKind: {{ .Chart.Name }}
+  serviceVersion: {{ .Values.defaultServiceVersion.greatdb }}
+  configs:
+    - name: greatdb-config
+      template: greatdb-config
+      namespace: {{ .Release.Namespace }}
+      volumeName: greatdb-config
+      defaultMode: 0755
+      keys:
+        - my.cnf
+      restartOnFileChange: true
+  scripts:
+    - name: greatdb-scripts
+      template: greatdb-scripts
+      namespace: {{ .Release.Namespace }}
+      volumeName: greatdb-scripts
+      defaultMode: 0555
+  services:
+    - name: mysql
+      serviceName: mysql
+      spec:
+        ports:
+          - name: mysql
+            port: {{ .Values.service.port }}
+            targetPort: mysql
+  systemAccounts:
+    - name: root
+      initAccount: true
+      passwordGenerationPolicy:
+        length: 16
+        numDigits: 8
+        numSymbols: 0
+        letterCase: MixedCases
+    - name: monitor
+      initAccount: true
+      passwordGenerationPolicy:
+        length: 16
+        numDigits: 8
+        numSymbols: 0
+        letterCase: MixedCases
+    - name: default
+      initAccount: true
+      passwordGenerationPolicy:
+        length: 16
+        numDigits: 8
+        numSymbols: 0
+        letterCase: MixedCases
+  runtime:
+    containers:
+      - name: greatdb
+        image: {{ include "greatdb.image" . }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy }}
+        volumeMounts:
+          - mountPath: /etc/mysql/conf.d
+            name: greatdb-config
+            readOnly: true
+          - mountPath: /etc/greatdb/my.cnf
+            name: greatdb-config
+            subPath: my.cnf
+            readOnly: true
+          - mountPath: /scripts/greatdb
+            name: greatdb-scripts
+            readOnly: true
+          - mountPath: /var/lib/mysql
+            name: data
+        ports:
+          - containerPort: 3306
+            name: mysql
+        env:
+          - name: MYSQL_ROOT_HOST
+            value: {{ .Values.auth.rootHost | default "%" | quote }}
+          - name: MYSQL_ROOT_PASSWORD
+            value: $(MYSQL_ROOT_PASSWORD)
+          - name: MYSQL_DATABASE
+            value: {{ .Values.auth.database | quote }}
+          - name: MYSQL_USER
+            value: "greatdb"
+          - name: MYSQL_PASSWORD
+            value: $(MYSQL_PASSWORD)
+        command:
+          - docker-entrypoint.sh
+          - greatdbd
+          - --defaults-file=/etc/greatdb/my.cnf
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "mysqladmin -u$(MYSQL_ROOT_USER) -p$(MYSQL_ROOT_PASSWORD) shutdown"]
+      - name: exporter
+        image: {{ include "exporter.image" . }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.image.prom.pullPolicy }}
+        ports:
+          - name: metrics
+            containerPort: 9104
+            protocol: TCP
+        env:
+          - name: "DATA_SOURCE_NAME"
+            value: "$(MYSQL_ROOT_USER):$(MYSQL_ROOT_PASSWORD)@(localhost:3306)/"
+  vars:
+    - name: MYSQL_ROOT_USER
+      value: root
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        credentialVarRef:
+          name: root
+          optional: false
+          password: Required
+    - name: MYSQL_MONITOR_USER
+      value: monitor
+    - name: MYSQL_MONITOR_PASSWORD
+      valueFrom:
+        credentialVarRef:
+          name: monitor
+          optional: false
+          password: Required
+    - name: MYSQL_USER
+      value: greatdb
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        credentialVarRef:
+          name: default
+          optional: false
+          password: Required
+    - name: MYSQL_DATABASE
+      value: {{ .Values.auth.database | quote }}

@@ -1,0 +1,36 @@
+{{- /*
+GreatDB ConfigMap for configuration files
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greatdb-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+data:
+  my.cnf: |
+{{- if and .Values.config (hasKey .Values.config "myCnf") }}
+{{- .Values.config.myCnf | nindent 4 }}
+{{- else }}
+{{- $.Files.Get "config/my.cnf" | nindent 4 }}
+{{- end }}
+
+---
+{{- /*
+GreatDB ConfigMap for script files
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greatdb-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+data:
+  entrypoint.sh: |
+{{- if and .Values.scripts (hasKey .Values.scripts "entrypoint") }}
+{{- .Values.scripts.entrypoint | nindent 4 }}
+{{- else }}
+{{- $.Files.Get "scripts/entrypoint.sh" | nindent 4 }}
+{{- end }}

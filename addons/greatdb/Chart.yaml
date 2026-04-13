@@ -1,0 +1,32 @@
+apiVersion: v2
+name: greatdb
+description: GreatDB is a distributed database based on MySQL, developed by Beijing Wanli Open Source Company. It is suitable for high-performance online transaction processing (OLTP) applications.
+
+type: application
+
+# This is the version number of the helm chart.
+version: 1.0.35
+
+# This is the version number of the GreatDB being deployed
+appVersion: "8.0.32"
+
+home: https://kubeblocks.io/
+icon: https://github.com/apecloud/kubeblocks/raw/main/img/logo.png
+
+maintainers:
+  - name: kubeblocks-team
+    url: https://github.com/apecloud/kubeblocks/
+
+sources:
+- https://github.com/apecloud/kubeblocks/
+
+annotations:
+  addon.kubeblocks.io/kubeblocks-version: ">=1.0.0"
+  addon.kubeblocks.io/model: "RDBMS"
+  addon.kubeblocks.io/provider: "community"
+
+dependencies:
+  - name: kblib
+    version: 0.1.0
+    repository: file://../kblib
+    alias: extra
