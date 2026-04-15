@@ -70,3 +70,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+## Role probe settings
+roleProbe:
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+## Replication settings
+replication:
+  replicationUser: replication

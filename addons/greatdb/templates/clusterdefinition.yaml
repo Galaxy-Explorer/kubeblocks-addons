@@ -1,0 +1,19 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: ClusterDefinition
+metadata:
+  name: greatdb
+  labels:
+    {{- include "greatdb.labels" . | nindent 4 }}
+  annotations:
+    {{- include "greatdb.apiVersion" . | nindent 4 }}
+spec:
+  topologies:
+    - name: standalone
+      default: true
+      components:
+        - name: greatdb
+          compDef: {{ include "greatdb.cmpdRegexpPattern" . }}
+    - name: replication
+      components:
+        - name: greatdb
+          compDef: {{ include "greatdb.cmpdRegexpPattern" . }}

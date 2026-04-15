@@ -34,3 +34,11 @@ data:
 {{- else }}
 {{- $.Files.Get "scripts/entrypoint.sh" | nindent 4 }}
 {{- end }}
+  role-probe.sh: |
+{{- $.Files.Get "scripts/role-probe.sh" | nindent 4 }}
+  setup-replica.sh: |
+{{- $.Files.Get "scripts/setup-replica.sh" | nindent 4 }}
+  switchover.sh: |
+{{- $.Files.Get "scripts/switchover.sh" | nindent 4 }}
+  leave-member.sh: |
+{{- $.Files.Get "scripts/leave-member.sh" | nindent 4 }}

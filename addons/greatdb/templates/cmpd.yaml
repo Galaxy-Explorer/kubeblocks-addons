@@ -34,6 +34,45 @@ spec:
           - name: mysql
             port: {{ .Values.service.port }}
             targetPort: mysql
+  roles:
+    - name: primary
+      updatePriority: 2
+      participatesInQuorum: false
+      isExclusive: true
+    - name: secondary
+      updatePriority: 1
+      participatesInQuorum: false
+  lifecycleActions:
+    roleProbe:
+      periodSeconds: {{ .Values.roleProbe.periodSeconds }}
+      timeoutSeconds: {{ .Values.roleProbe.timeoutSeconds }}
+      exec:
+        container: greatdb
+        command:
+          - /bin/bash
+          - -c
+          - /scripts/greatdb/role-probe.sh
+    memberJoin:
+      exec:
+        container: greatdb
+        command:
+          - /bin/bash
+          - -c
+          - /scripts/greatdb/setup-replica.sh
+    memberLeave:
+      exec:
+        container: greatdb
+        command:
+          - /bin/bash
+          - -c
+          - /scripts/greatdb/leave-member.sh
+    switchover:
+      exec:
+        container: greatdb
+        command:
+          - /bin/bash
+          - -c
+          - /scripts/greatdb/switchover.sh
   systemAccounts:
     - name: root
       initAccount: true
@@ -51,6 +90,12 @@ spec:
         letterCase: MixedCases
     - name: default
       initAccount: true
+      passwordGenerationPolicy:
+        length: 16
+        numDigits: 8
+        numSymbols: 0
+        letterCase: MixedCases
+    - name: replication
       passwordGenerationPolicy:
         length: 16
         numDigits: 8
@@ -133,3 +178,23 @@ spec:
           password: Required
     - name: MYSQL_DATABASE
       value: {{ .Values.auth.database | quote }}
+    - name: PRIMARY_POD_FQDN
+      valueFrom:
+        componentVarRef:
+          optional: true
+          podFQDNsForRole:
+            role: primary
+            option: Optional
+    - name: POD_FQDNS
+      valueFrom:
+        componentVarRef:
+          optional: false
+          podFQDNs: Required
+    - name: MYSQL_REPL_USER
+      value: replication
+    - name: MYSQL_REPL_PASSWORD
+      valueFrom:
+        credentialVarRef:
+          name: replication
+          optional: false
+          password: Required
