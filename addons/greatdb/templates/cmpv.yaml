@@ -18,3 +18,8 @@ spec:
       images:
         greatdb: {{ include "greatdb.repository" . }}:8.0.32
         exporter: {{ include "exporter.repository" . }}:v0.14.0
+        accountprovision: {{ include "greatdb.repository" . }}:8.0.32
+        roleprobe: {{ include "greatdb.repository" . }}:8.0.32
+        switchover: {{ include "greatdb.repository" . }}:8.0.32
+        memberjoin: {{ include "greatdb.repository" . }}:8.0.32
+        memberleave: {{ include "greatdb.repository" . }}:8.0.32
