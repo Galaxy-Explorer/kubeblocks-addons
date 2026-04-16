@@ -17,7 +17,7 @@ die() { log "ERROR: $*"; exit 1; }
 
 mysql_cmd() {
     local host="$1"; shift
-    mysql -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" \
+    greatdb -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" \
           -h"${host}" -P3306 --connect-timeout=10 -N -s "$@"
 }
 

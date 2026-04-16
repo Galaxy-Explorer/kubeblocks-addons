@@ -5,7 +5,7 @@
 
 set -eo pipefail
 
-MYSQL_CMD="mysql -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -h127.0.0.1 -P3306 --connect-timeout=5 -N -s"
+MYSQL_CMD="greatdb -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -h127.0.0.1 -P3306 --connect-timeout=5 -N -s"
 
 # Query read_only: 0 = primary (writable), 1 = secondary (read-only)
 read_only=$($MYSQL_CMD -e "SELECT @@global.read_only;" 2>/dev/null) || {

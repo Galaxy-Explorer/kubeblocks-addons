@@ -53,7 +53,7 @@ spec:
             set -ex
             ALL_DB='*.*'
             eval statement=\"${KB_ACCOUNT_STATEMENT}\"
-            mysql -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P3306 -h127.0.0.1 -e "${statement}"
+            greatdb -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P3306 -h127.0.0.1 -e "${statement}"
         targetPodSelector: Role
         matchingKey: primary
     roleProbe:

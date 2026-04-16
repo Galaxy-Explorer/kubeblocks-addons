@@ -21,7 +21,7 @@ LEAVER_NAME="${KB_LEAVE_MEMBER_POD_NAME:-}"
 log "Processing leave for pod: ${LEAVER_NAME} (${LEAVER_FQDN})"
 
 mysql_leaver() {
-    mysql -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" \
+    greatdb -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" \
           -h"${LEAVER_FQDN}" -P3306 --connect-timeout=10 -N -s "$@"
 }
 

@@ -6,7 +6,7 @@
 
 set -eo pipefail
 
-MYSQL_CMD="mysql -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -h127.0.0.1 -P3306 --connect-timeout=10 -N -s"
+MYSQL_CMD="greatdb -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -h127.0.0.1 -P3306 --connect-timeout=10 -N -s"
 POD_NAME="${KB_JOIN_MEMBER_POD_NAME:-${POD_NAME:-}}"
 POD_FQDN="${KB_JOIN_MEMBER_POD_FQDN:-}"
 
@@ -17,7 +17,7 @@ wait_mysql() {
     local host="${1:-127.0.0.1}"
     local retries=30
     local i=0
-    while ! mysql -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" -h"${host}" -P3306 \
+    while ! greatdb -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" -h"${host}" -P3306 \
           --connect-timeout=3 -e "SELECT 1" &>/dev/null; do
         i=$((i+1))
         [ $i -ge $retries ] && die "MySQL at ${host} not ready after ${retries} attempts"
