@@ -51,8 +51,8 @@ spec:
           - -c
           - |
             set -ex
-            ALL_DB='*.*'
-            eval statement=\"${KB_ACCOUNT_STATEMENT}\"
+            export ALL_DB='*.*'
+            statement=$(printf '%s' "${KB_ACCOUNT_STATEMENT}" | envsubst)
             greatdb -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} -P3306 -h127.0.0.1 -e "${statement}"
         targetPodSelector: Role
         matchingKey: primary

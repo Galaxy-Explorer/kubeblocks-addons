@@ -35,6 +35,8 @@ fi
 # Check if this pod is the first one, or PRIMARY_POD_FQDN is not set / points to self
 self_fqdn="${POD_FQDN}"
 primary_fqdn="${PRIMARY_POD_FQDN:-}"
+# PRIMARY_POD_FQDN may be comma-separated; take only the first entry
+primary_fqdn=$(echo "${primary_fqdn}" | cut -d',' -f1 | tr -d '[:space:]')
 
 log "Pod: ${POD_NAME} (ordinal=${ordinal}), PRIMARY_POD_FQDN='${primary_fqdn}'"
 
