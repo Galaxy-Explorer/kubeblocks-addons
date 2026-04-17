@@ -68,8 +68,8 @@ log "Setting up replication from primary: ${primary_fqdn}"
 wait_mysql "${primary_fqdn}"
 
 # Check if already replicating from the correct primary
-current_master=$($MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Master_Host:" | awk '{print $2}' | tr -d '[:space:]')
-slave_running=$($MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Slave_IO_Running:" | awk '{print $2}' | tr -d '[:space:]')
+current_master=$({ $MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null || true; } | { grep "Master_Host:" || true; } | awk '{print $2}' | tr -d '[:space:]')
+slave_running=$({ $MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null || true; } | { grep "Slave_IO_Running:" || true; } | awk '{print $2}' | tr -d '[:space:]')
 
 if [ "${current_master}" = "${primary_fqdn}" ] && [ "${slave_running}" = "Yes" ]; then
     log "Already replicating from ${primary_fqdn}. Skipping CHANGE MASTER TO."
@@ -92,13 +92,13 @@ $MYSQL_CMD -e "START SLAVE;" || die "START SLAVE failed"
 
 # Verify replication started
 sleep 2
-io_running=$($MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Slave_IO_Running:" | awk '{print $2}' | tr -d '[:space:]')
-sql_running=$($MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Slave_SQL_Running:" | awk '{print $2}' | tr -d '[:space:]')
+io_running=$({ $MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null || true; } | { grep "Slave_IO_Running:" || true; } | awk '{print $2}' | tr -d '[:space:]')
+sql_running=$({ $MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null || true; } | { grep "Slave_SQL_Running:" || true; } | awk '{print $2}' | tr -d '[:space:]')
 
 if [ "${io_running}" = "Yes" ] && [ "${sql_running}" = "Yes" ]; then
     log "Replication running successfully (IO: ${io_running}, SQL: ${sql_running})"
 else
-    last_err=$($MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Last_Error:" | head -1)
+    last_err=$({ $MYSQL_CMD -e "SHOW SLAVE STATUS\G" 2>/dev/null || true; } | { grep "Last_Error:" || true; } | head -1)
     die "Replication not running after START SLAVE. IO=${io_running} SQL=${sql_running}. ${last_err}"
 fi
 
