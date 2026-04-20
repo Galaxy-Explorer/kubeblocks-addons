@@ -5,7 +5,7 @@ description: GreatDB is a distributed database based on MySQL, developed by Beij
 type: application
 
 # This is the version number of the helm chart.
-version: 1.0.40
+version: 1.0.41
 
 # This is the version number of the GreatDB being deployed
 appVersion: "8.0.32"

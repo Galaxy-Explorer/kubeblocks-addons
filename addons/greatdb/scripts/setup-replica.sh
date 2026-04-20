@@ -48,15 +48,6 @@ if [ -z "${primary_fqdn}" ] || [ "${primary_fqdn}" = "${self_fqdn}" ] || [ "${or
     log "This pod is the primary. Setting read_only=OFF."
     $MYSQL_CMD -e "SET GLOBAL read_only = OFF; SET GLOBAL super_read_only = OFF;" || die "Failed to set read_only=OFF"
 
-    # Create replication user if it doesn't exist
-    if [ -n "${MYSQL_REPL_USER}" ] && [ -n "${MYSQL_REPL_PASSWORD}" ]; then
-        log "Ensuring replication user '${MYSQL_REPL_USER}' exists."
-        $MYSQL_CMD -e "
-            CREATE USER IF NOT EXISTS '${MYSQL_REPL_USER}'@'%' IDENTIFIED BY '${MYSQL_REPL_PASSWORD}';
-            GRANT REPLICATION SLAVE ON *.* TO '${MYSQL_REPL_USER}'@'%';
-            FLUSH PRIVILEGES;
-        " || die "Failed to create replication user"
-    fi
     log "Primary bootstrap complete."
     exit 0
 fi
@@ -78,13 +69,21 @@ fi
 
 log "Configuring replication: STOP SLAVE → CHANGE MASTER TO → START SLAVE"
 
+# Seed replica data from primary before configuring replication
+log "Seeding replica data from primary via greatdbdump..."
+greatdbdump -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" -h"${primary_fqdn}" -P3306 \
+    --single-transaction --all-databases 2>/dev/null \
+    | greatdb -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 -P3306 \
+    || die "greatdbdump from ${primary_fqdn} failed"
+log "Data seeding complete."
+
 $MYSQL_CMD -e "STOP SLAVE;" 2>/dev/null || true
 $MYSQL_CMD -e "
     CHANGE MASTER TO
         MASTER_HOST='${primary_fqdn}',
         MASTER_PORT=3306,
-        MASTER_USER='${MYSQL_REPL_USER}',
-        MASTER_PASSWORD='${MYSQL_REPL_PASSWORD}',
+        MASTER_USER='${MYSQL_ROOT_USER}',
+        MASTER_PASSWORD='${MYSQL_ROOT_PASSWORD}',
         MASTER_AUTO_POSITION=1;
 " || die "CHANGE MASTER TO failed"
 

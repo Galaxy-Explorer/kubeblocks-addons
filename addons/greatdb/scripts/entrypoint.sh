@@ -379,6 +379,10 @@ _main() {
 			echo
 		fi
 	fi
+	if [ "$1" = 'greatdbd' ]; then
+		SERVICE_ID=$((${POD_NAME##*-} + 1))
+		set -- "$@" "$SERVICE_ID"
+	fi
 	exec "$@"
 }
 
