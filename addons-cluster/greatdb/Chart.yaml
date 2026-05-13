@@ -1,0 +1,18 @@
+annotations:
+  category: Database
+apiVersion: v2
+name: greatdb-cluster
+type: application
+version: 1.0.0
+description: GreatDB is an open-source relational database management system developed from a branch of MySQL.
+dependencies:
+  - name: kblib
+    version: 0.1.2
+    repository: file://../kblib
+    alias: extra
+
+# This is the version number of the  Mariadb being deployed,
+# rather than the version number of  Mariadb-Scale itself.
+# From a user's perspective, the version  number of the frontend
+# proxy of the Mariadb being used is not relevant.
+appVersion: "8.0.32"
